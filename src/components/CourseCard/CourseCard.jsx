@@ -36,7 +36,7 @@ const CourseCard = ({ thumbnail, title, description, price, duration, level, cre
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-primary">{price}</span>
+                    <span className="text-xl font-bold text-primary">Npr.{price}</span>
                     <button
                         className="bg-primary text-white py-2 px-6 rounded-full shadow-lg hover:bg-secondary transition duration-300"
                         onClick={(e) => {

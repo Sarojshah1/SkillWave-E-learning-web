@@ -2,29 +2,50 @@ import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
 import { FaUserCircle } from "react-icons/fa";
+import axios from "axios";
 
 const NavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Set to true for demo; toggle as needed
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set to false initially
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const [userName, setUserName] = useState("");
+  const [userProfile, setUserProfile] = useState({});
 
-  // Handle clicks outside the dropdown to close it
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .get("http://localhost:3000/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` }, // Attach token in the headers
+        })
+        .then((response) => {
+          setIsLoggedIn(true);
+          setUserName(response.data.name); // Assuming response contains the user name
+          setUserProfile(response.data); // Assuming response contains the profile picture URL
+        })
+        .catch((error) => {
+          console.error("Error fetching user details:", error);
+          setIsLoggedIn(false);
+        });
+    }
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  console.log(userProfile)
 
-  // Function to handle logout
   const handleLogout = () => {
     // Perform logout logic here, e.g., clearing tokens, etc.
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/login");
   };
@@ -49,11 +70,7 @@ const NavBar = () => {
     <nav className="bg-primary shadow-container md:px-14 p-4 max-w-screen-2xl mx-auto text-primary">
       <div className="text-lg mx-auto flex items-center justify-between">
         <a href="/" className="text-2xl font-semibold items-center">
-          <img
-            src={logo}
-            alt="CareerVista"
-            className="w-28 inline-block"
-          />
+          <img src={logo} alt="CareerVista" className="w-28 inline-block" />
         </a>
         <div className="hidden md:flex space-x-12 items-center flex-grow justify-end">
           {navitems.map((item, index) => (
@@ -74,10 +91,20 @@ const NavBar = () => {
                 className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-full border border-white hover:bg-white hover:text-primary transition duration-300"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <FaUserCircle className="text-2xl" />
-                <span className="hidden md:inline">John Doe</span>
+                {userProfile ? (
+                  <img
+                    src={`http://localhost:3000/profile/${userProfile.profile_picture}`}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <FaUserCircle className="text-2xl" />
+                )}
+                <span className="hidden md:inline">{userName || "Profile"}</span>
                 <svg
-                  className={`w-4 h-4 ml-2 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 ml-2 transition-transform duration-300 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -93,7 +120,7 @@ const NavBar = () => {
               </button>
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md ring-1 ring-black ring-opacity-5 transition-opacity duration-300">
-                  {profileOptions.map((option, index) => (
+                  {profileOptions.map((option, index) =>
                     option.action ? (
                       <button
                         key={index}
@@ -111,7 +138,7 @@ const NavBar = () => {
                         {option.link}
                       </NavLink>
                     )
-                  ))}
+                  )}
                 </div>
               )}
             </div>

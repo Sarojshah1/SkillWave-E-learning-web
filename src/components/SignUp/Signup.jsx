@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Transition } from '@headlessui/react';
 import { FaCamera } from 'react-icons/fa'; // Import an icon for file selection
+import axios from 'axios';
 
 const Signup = () => {
   const [step, setStep] = useState(1);
@@ -9,11 +10,13 @@ const Signup = () => {
     email: '',
     password: '',
     role: 'student',
-    profilePicture: '',
+    profile_picture: null,
     bio: '',
   });
 
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const fileInputRef = React.createRef(); // Create a reference for the file input
 
   const handleChange = (e) => {
@@ -24,10 +27,10 @@ const Signup = () => {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData({ ...formData, profile_picture: file });
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePicturePreview(reader.result);
-        setFormData({ ...formData, profilePicture: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -45,10 +48,38 @@ const Signup = () => {
     setStep(step - 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+    setLoading(true);
+    setError('');
+
+    try {
+      const submissionData = new FormData();
+      submissionData.append('name', formData.name);
+      submissionData.append('email', formData.email);
+      submissionData.append('password', formData.password);
+      submissionData.append('role', formData.role);
+      submissionData.append('bio', formData.bio);
+      if (formData.profile_picture) {
+        submissionData.append('profile_picture', formData.profile_picture);
+      }
+
+      // Example API request - adjust the endpoint as needed
+      const response = await axios.post('http://localhost:3000/api/user/register', submissionData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Handle successful registration (e.g., redirect to login page)
+      console.log(response.data);
+
+      // Reset form or redirect to another page
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setError('Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -201,18 +232,19 @@ const Signup = () => {
                 <button
                   type="button"
                   onClick={handlePrevStep}
-                  className="py-3 px-4 border border-transparent text-sm font-medium rounded-md text-pink-500 hover:bg-pink-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                  className="py-3 px-4 border border-transparent text-sm font-medium rounded-md text-gray-600 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
                 >
                   Back
                 </button>
-
                 <button
                   type="submit"
                   className="py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                  disabled={loading}
                 >
-                  Sign Up
+                  {loading ? 'Registering...' : 'Register'}
                 </button>
               </div>
+              {error && <p className="mt-4 text-center text-red-600">{error}</p>}
             </form>
           </div>
         </Transition>

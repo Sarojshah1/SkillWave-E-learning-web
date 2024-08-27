@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState,useEffect } from 'react';
+import { NavLink,useNavigate  } from 'react-router-dom';
+import axios from 'axios';
 import { 
   FaChalkboardTeacher, FaBook, FaCalendarAlt, 
   FaEnvelope, FaCogs, FaDollarSign, FaBlog, FaStar,
@@ -9,8 +10,10 @@ import {
 import { CiLogout } from "react-icons/ci";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [isCoursesDropdownOpen, setIsCoursesDropdownOpen] = useState(false);
   const [isBlogsDropdownOpen, setIsBlogsDropdownOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState({});
 
   const toggleCoursesDropdown = () => {
     setIsCoursesDropdownOpen(!isCoursesDropdownOpen);
@@ -19,19 +22,42 @@ const Sidebar = () => {
   const toggleBlogsDropdown = () => {
     setIsBlogsDropdownOpen(!isBlogsDropdownOpen);
   };
+  const handleLogout = () => {
+    // Clear any authentication tokens or user data stored
+    localStorage.removeItem("token"); // Example: Clearing token from localStorage
+    navigate("/login"); // Redirect to login page
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    // Fetch user profile data from the API
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/user/profile', {
+          headers: { Authorization: `Bearer ${token}` }, // Attach token in the headers
+        }); 
+        console.log(response.data)
+        setUserProfile(response.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   return (
     <div className="bg-gradient-to-b from-teal-700 to-teal-900 text-white w-64 h-screen p-6 flex flex-col shadow-2xl">
       {/* Profile Section */}
       <div className="flex flex-col items-center mb-8">
         <img
-          src="https://via.placeholder.com/50"
+          src={`http://localhost:3000/profile/${userProfile.profile_picture}`}
           alt="Profile"
-          className="w-16 h-16 rounded-full mb-2 border-2 border-white transition-transform transform hover:scale-105"
+          className="w-24 h-24 rounded-full mb-2 border-2 border-white transition-transform transform hover:scale-105"
         />
         <div className="text-center">
-          <h3 className="text-lg font-semibold">Tutor Name</h3>
-          <p className="text-sm text-gray-300 mb-1">tutor@example.com</p>
+          <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+          <p className="text-sm text-gray-300 mb-1">{userProfile.email}</p>
           <div className="flex items-center justify-center">
             <FaStar className="text-yellow-400 mr-1" />
             <span className="text-sm">4.5</span>
@@ -140,7 +166,7 @@ const Sidebar = () => {
 
         <li>
           <button
-            onClick={() => { /* Handle logout logic */ }}
+            onClick={handleLogout}
             className="flex items-center text-white hover:text-teal-300 transition duration-200 ease-in-out transform hover:scale-105"
           >
           <CiLogout className="mr-3" /> Log Out

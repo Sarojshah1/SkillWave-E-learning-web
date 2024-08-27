@@ -1,70 +1,78 @@
 import React from 'react';
 import CourseCard from '../../CourseCard/CourseCard';
+import { useNavigate } from 'react-router-dom';
+
 
 const courses = [
     {
+        id:1,
         thumbnail: 'https://via.placeholder.com/300',
-        title: 'Introduction to React',
-        description: 'Learn the fundamentals of React and build interactive user interfaces.',
-        price: 'Npr.499',
-        duration: '4 weeks',
+        title: 'Web Development',
+        description: 'Build websites with HTML, CSS, and JavaScript.',
+        price: '1999',
+        duration: '12 weeks',
         level: 'Beginner',
-        creator: 'Jane Doe',
-        onClick: () => console.log('Introduction to React clicked'),
+        creator: 'John Doe',
     },
     {
+        id:2,
         thumbnail: 'https://via.placeholder.com/300',
-        title: 'Advanced JavaScript',
-        description: 'Deep dive into JavaScript features and modern programming techniques.',
-        price: 'Npr.5999',
-        duration: '6 weeks',
-        level: 'Advanced',
-        creator: 'John Smith',
-        onClick: () => console.log('Advanced JavaScript clicked'),
-    },
-    {
-        thumbnail: 'https://via.placeholder.com/300',
-        title: 'Data Visualization with D3.js',
-        description: 'Create beautiful and interactive data visualizations using D3.js.',
-        price: 'Npr.6999',
-        duration: '5 weeks',
+        title: 'Data Science',
+        description: 'Analyze data and create visualizations using Python.',
+        price: '2999',
+        duration: '16 weeks',
         level: 'Intermediate',
-        creator: 'Alice Johnson',
-        onClick: () => console.log('Data Visualization with D3.js clicked'),
+        creator: 'Jane Smith',
     },
     {
+        id:3,
         thumbnail: 'https://via.placeholder.com/300',
-        title: 'Python for Data Science',
-        description: 'Learn Python programming and data analysis for data science applications.',
-        price: 'Npr.7990',
+        title: 'Digital Marketing',
+        description: 'Master SEO, SEM, and social media strategies.',
+        price: '1499',
         duration: '8 weeks',
-        level: 'Intermediate',
-        creator: 'Emily Davis',
-        onClick: () => console.log('Python for Data Science clicked'),
+        level: 'Advanced',
+        creator: 'Emily Johnson',
     },
     {
+        id:4,
         thumbnail: 'https://via.placeholder.com/300',
-        title: 'Digital Marketing Fundamentals',
-        description: 'Understand the basics of digital marketing, SEO, and SEM strategies.',
-        price: 'Npr.5999',
-        duration: '4 weeks',
+        title: 'Graphic Design',
+        description: 'Learn design principles and tools like Photoshop and Illustrator.',
+        price: '1999',
+        duration: '10 weeks',
         level: 'Beginner',
         creator: 'Michael Brown',
-        onClick: () => console.log('Digital Marketing Fundamentals clicked'),
     },
     {
+        id:5,
         thumbnail: 'https://via.placeholder.com/300',
-        title: 'UI/UX Design Bootcamp',
-        description: 'Get hands-on experience with UI/UX design principles and tools.',
-        price: 'Npr.8999',
-        duration: '7 weeks',
+        title: 'Machine Learning',
+        description: 'Explore algorithms and build models using machine learning techniques.',
+        price: '19999',
+        duration: '14 weeks',
         level: 'Advanced',
-        creator: 'Sophia Wilson',
-        onClick: () => console.log('UI/UX Design Bootcamp clicked'),
+        creator: 'Lisa White'
     },
+    {
+        id:6,
+        thumbnail: 'https://via.placeholder.com/300',
+        title: 'Cybersecurity',
+        description: 'Understand security threats and how to protect systems.',
+        price: '1999',
+        duration: '12 weeks',
+        level: 'Intermediate',
+        creator: 'James Wilson',
+    }
 ];
 
 const CoursesPage = () => {
+    const navigate = useNavigate();
+
+    const handleCardClick = (courseId,course) => {
+        console.log(course);
+        navigate(`/course-details/${courseId}`, { state: { course } }); // Replace with your actual route
+    };
     return (
         <div className="p-8">
             <h2 className="text-3xl font-bold mb-6">Our Courses</h2>
@@ -79,7 +87,7 @@ const CoursesPage = () => {
                         duration={course.duration}
                         level={course.level}
                         creator={course.creator}
-                        onClick={course.onClick}
+                        onClick={() => handleCardClick(course.id,course)}
                     />
                 ))}
             </div>

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import Landing from './components/Landing/Landing.jsx'
 import NavBar from './components/Landing/NavBar/NavBar.jsx';
-import { QueryClient,QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient,QueryClientProvider,useQuery  } from '@tanstack/react-query';
 import { createBrowserRouter,RouterProvider } from 'react-router-dom';
 import NotFound from './components/error/NotFound.jsx';
 import Footer from './components/footer/Footer.jsx';
@@ -31,6 +31,21 @@ import PaymentDetailPage from './components/Tutor_Components/Payments/PaymentDet
 import LessonListPage from './components/Tutor_Components/Courses/LessonListPage.jsx';
 import LessonContentPage from './components/Tutor_Components/Courses/LessonContentPage.jsx';
 import CustomerSupportPage from './components/Tutor_Components/customersupport/CustomerSupportPage.jsx';
+import CheckoutPage from './components/Courses/CheckoutPage.jsx';
+import { useNavigate,Navigate } from 'react-router-dom';
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const navigate = useNavigate();
+  const role=localStorage.getItem('role');
+  console.log(role)
+  if (role === null) {
+    return <Navigate to="/login" />; // Redirect to login if role is not found
+  }
+  if (role !== requiredRole) {
+    return <Navigate to="/login" />; // Redirect to login if role does not match
+  }
+
+  return children;
+};
 
 const AppLayout = () => (
   <>
@@ -110,6 +125,9 @@ function App() {
         },{
           path: '/course-details/:id',
           element: <CourseDetailsPage />,
+        },{
+          path: '/payments',
+          element: <CheckoutPage />,
         },
         {
           path: '/category',
@@ -128,23 +146,43 @@ function App() {
       ]
     },
     {
-      element:<TutorLayout/>,
+      element:(
+        <ProtectedRoute requiredRole='tutor'>
+          <TutorLayout />
+        </ProtectedRoute>
+      ),
       errorElement:<NotFound/>,
       children:[
         {
           path:"/tutor/dashboard",
-          element:<TutorDashboard/>
+          element:(
+            <ProtectedRoute requiredRole="tutor">
+              <TutorDashboard />
+            </ProtectedRoute>
+          )
         },
         {
           path:"/tutor/courses",
-          element:<TutorCourses/>
+          element:(
+            <ProtectedRoute requiredRole="tutor">
+              <TutorCourses />
+            </ProtectedRoute>
+          )
         },
         {
           path:"/tutor/add_courses",
-          element:<CourseForm/>
+          element:(
+            <ProtectedRoute requiredRole="tutor">
+              <CourseForm />
+            </ProtectedRoute>
+          )
         },{
           path: "/tutor/Blogs/view",
-          element: <TutorBlogPage/>,
+          element: (
+            <ProtectedRoute requiredRole="tutor">
+              <TutorBlogPage />
+            </ProtectedRoute>
+          ),
         },
         {
           path: '/tutor/blogs/:id',
