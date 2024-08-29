@@ -1,16 +1,20 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { FaCheckCircle, FaChalkboardTeacher } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
 
 const MyLearningsCard = ({ course }) => {
+  const [isReadMore, setIsReadMore] = useState(false);
   console.log(course);
   // const { thumbnail, title, description, progress, totalLessons } = course;
   const navigate = useNavigate(); // Initialize navigate function
 
   const handleCardClick = () => {
     // Navigate to a detailed course page or perform another action
-    navigate(`/content`);
+    navigate(`/content/${course.course_id._id}`,{state:{enrollid:course._id,progress:course.progress}});
+  };
+  const toggleReadMore = () => {
+    setIsReadMore(!isReadMore);
   };
 
   return (
@@ -25,7 +29,16 @@ const MyLearningsCard = ({ course }) => {
         className="w-full h-32 object-contain rounded-lg mb-4"
       />
       <h3 className="text-xl font-semibold text-gray-800 mb-2">{course.course_id.title}</h3>
-      <p className="text-gray-600 mb-4">{course.course_id.description}</p>
+      <p className="text-gray-600 mb-4">{isReadMore ? course.course_id.description : `${course.course_id.description.substring(0, 50)}...`}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click event from firing
+              toggleReadMore();
+            }} 
+            className="text-blue-500 ml-1"
+          >
+            {isReadMore ? 'Read Less' : 'Read More'}
+          </button></p>
       <div className="flex flex-col mb-4">
         <span className="text-gray-800 font-medium mb-1 flex items-center">
           <FaCheckCircle className="text-primary mr-2" /> Progress

@@ -5,7 +5,6 @@ import axios from 'axios';
 
 
 const MyLearnings = () => {
-
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {

@@ -1,8 +1,12 @@
-import React from 'react';
+import React,{useState} from 'react';
 import PropTypes from 'prop-types';
 import { FaClock, FaStar, FaUser } from 'react-icons/fa';
 
 const CourseCard = ({ thumbnail, title, description, price, duration, level, creator, onClick }) => {
+    const [isReadMore, setIsReadMore] = useState(false);
+    const toggleReadMore = () => {
+        setIsReadMore(!isReadMore);
+      };
     return (
         <div
             className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
@@ -20,7 +24,16 @@ const CourseCard = ({ thumbnail, title, description, price, duration, level, cre
             </div>
             <div className="p-6">
                 <h3 className="text-2xl font-bold mb-2 text-gray-900">{title}</h3>
-                <p className="text-gray-700 mb-4">{description}</p>
+                <p className="text-gray-700 mb-4">{isReadMore ? description : `${description.substring(0, 50)}...`}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click event from firing
+              toggleReadMore();
+            }} 
+            className="text-blue-500 ml-1"
+          >
+            {isReadMore ? 'Read Less' : 'Read More'}
+          </button></p>
                 <div className="flex flex-col md:flex-row md:justify-between text-sm text-gray-500 mb-4">
                     <div className="flex items-center mb-2 md:mb-0">
                         <FaClock className="mr-1 text-gray-600" />

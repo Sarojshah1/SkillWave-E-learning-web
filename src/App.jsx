@@ -143,7 +143,7 @@ function App() {
     {
       element: <NoLayout />, // Use the NoLayout component here
       children: [
-        { path: "/content", element: <CourseContentPage /> },
+        { path: "/content/:id", element: <CourseContentPage /> },
       ]
     },
     {

@@ -101,7 +101,7 @@ https://uat.esewa.com.np/api/epay/transaction/status/?product_code=EPAYTEST&tota
             <div className="w-full max-w-xl mb-8 p-8 bg-white rounded-lg shadow-md">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">Order Summary</h2>
                 <div className="flex items-center space-x-4 mb-6">
-                    <img src={thumbnail} alt={title} className="w-20 h-20 rounded-md object-cover" />
+                    <img src={`http://localhost:3000/thumbnails/${thumbnail}`} alt={title} className="w-40 h-40 rounded-md object-contain" />
                     <div>
                         <h3 className="text-lg font-medium text-gray-800">{title}</h3>
                         <p className="text-gray-500">{description}</p>

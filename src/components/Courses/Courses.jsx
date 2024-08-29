@@ -61,7 +61,7 @@ const CoursePage = () => {
                                 price={course.price}
                                 duration={course.duration}
                                 level={course.level}
-                                creator={course.creator}
+                                creator={course.created_by.name}
                                 onClick={() => handleCardClick(course.id,course)}
                             />
                         ))
