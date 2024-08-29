@@ -1,45 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CourseCard from './TutorCourseCard';
+import axios from 'axios';
 
 const TutorCourses = () => {
-  // Sample data for courses
-  const courses = [
-    {
-      id:1,
-      title: 'React for Beginners',
-      description: 'Learn the basics of React, including components, state, and props.',
-      students: 120,
-      thumbnail: 'https://via.placeholder.com/300x200.png?text=React+Course',
-    },
-    {
-      id:2,
-      title: 'Advanced JavaScript',
-      description: 'Deep dive into JavaScript concepts like closures, promises, and async/await.',
-      students: 200,
-      thumbnail: 'https://via.placeholder.com/300x200.png?text=JavaScript+Course',
-    },
-    {
-      id:3,
-      title: 'UI/UX Design Basics',
-      description: 'Explore the fundamentals of UI/UX design, including wireframing and prototyping.',
-      students: 150,
-      thumbnail: 'https://via.placeholder.com/300x200.png?text=Design+Course',
-    },
-    {
-      id:4,
-      title: 'Full Stack Development',
-      description: 'Master both frontend and backend development with this comprehensive course.',
-      students: 180,
-      thumbnail: 'https://via.placeholder.com/300x200.png?text=Full+Stack+Course',
-    },
-    {
-      id:5,
-      title: 'Data Structures & Algorithms',
-      description: 'Understand data structures and algorithms to improve your coding skills.',
-      students: 170,
-      thumbnail: 'https://via.placeholder.com/300x200.png?text=DSA+Course',
-    },
-  ];
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const id=localStorage.getItem("userid");
+      console.log(id);
+      try {
+        const response = await axios.get(`http://localhost:3000/api/courses/creator/${id}`,{ headers: { Authorization: `Bearer ${token}` },}); // Adjust the API endpoint as 
+        console.log(response)
+        setCourses(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">

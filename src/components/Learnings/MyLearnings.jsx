@@ -1,25 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MyLearningsCard from './MyLearningsCard';
+import axios from 'axios';
 
-const courses = [
-  {
-    thumbnail: "https://via.placeholder.com/100x100",
-    title: "Introduction to React",
-    description: "Learn the basics of React, including components, props, and state.",
-    progress: 60,
-    totalLessons: 12,
-  },
-  {
-    thumbnail: "https://via.placeholder.com/100x100",
-    title: "Advanced JavaScript",
-    description: "Deep dive into JavaScript ES6+ features and advanced concepts.",
-    progress: 40,
-    totalLessons: 15,
-  },
-  // Add more courses as needed
-];
+
 
 const MyLearnings = () => {
+
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get('http://localhost:3000/api/enroll/user', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response)
+        setCourses(response.data); // Assume response.data is the array of courses
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <div className="max-w-6xl mx-auto">

@@ -1,39 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaMobileAlt, FaCertificate, FaInfinity, FaDownload, FaMoneyBillWave } from 'react-icons/fa';
 import { useLocation,useNavigate } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
-
+import axios from 'axios';
 const CourseDetailsPage = () => {
     const [activeTab, setActiveTab] = useState("overview");
     const { state } = useLocation();
     const navigate = useNavigate();
 
-    // Dummy reviews if not provided
-    const dummyReviews = [
-        {
-            id: 1,
-            user: "Alice Johnson",
-            rating: 5,
-            comment: "This course was fantastic! It covered everything I needed to know and more. Highly recommend!",
-            date: "2024-08-10"
-        },
-        {
-            id: 2,
-            user: "Bob Smith",
-            rating: 4,
-            comment: "Great course, but the pace was a bit fast. Overall, very informative and useful.",
-            date: "2024-08-12"
-        },
-        {
-            id: 3,
-            user: "Carol White",
-            rating: 3,
-            comment: "The content was good, but I expected more hands-on examples. Good for beginners though.",
-            date: "2024-08-15"
-        }
-    ];
 
-    const [reviewList, setReviewList] = useState(state?.course?.reviews || dummyReviews); // Initialize with state or dummy reviews
+    const [reviewList, setReviewList] = useState(state?.course?.reviews); // Initialize with state or dummy reviews
     const [newReview, setNewReview] = useState({ comment: "", rating: 0 });
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
@@ -44,29 +20,49 @@ const CourseDetailsPage = () => {
     }
 
     const {
+        _id,
         thumbnail,
         title,
         description,
         price,
         duration,
         level,
-        creator,
-        createdDate,
-        totalLessons,
+        created_by,
+        created_at,
+        lessons,
     } = state.course;
 
-    const handleReviewSubmit = (e) => {
-        e.preventDefault();
-        const newReviewData = {
-            id: reviewList.length + 1,
-            user: "Anonymous", // or handle user name if available
-            rating: rating,
-            comment: newReview.comment,
-            date: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
+    useEffect(() => {
+        // Fetch reviews when component mounts
+        const fetchReviews = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/review/reviews/course/${_id}`);
+                console.log("reviews",response);
+                setReviewList(response.data);
+            } catch (error) {
+                console.error("Error fetching reviews:", error);
+            }
         };
-        setReviewList([...reviewList, newReviewData]);
-        setNewReview({ comment: "", rating: 0 }); // Reset form
-        setRating(0);
+
+        fetchReviews();
+    }, [_id]);
+    const handleReviewSubmit = async(e) => {
+        const token = localStorage.getItem("token");
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:3000/api/review/reviews', {
+                course_id: _id,
+                rating,
+                comment: newReview.comment
+            }, {
+                headers: { Authorization: `Bearer ${token}` }, // Attach token in the headers
+              });
+            setReviewList([...reviewList, response.data]);
+            setNewReview({ comment: "", rating: 0 });
+            setRating(0);
+        } catch (error) {
+            console.error("Error submitting review:", error);
+        }
     };
 
     const handleBuyNow = () => {
@@ -79,9 +75,9 @@ const CourseDetailsPage = () => {
                 <div className="flex-1 p-8">
                     <div className="relative">
                         <img
-                            src={thumbnail}
+                            src={`http://localhost:3000/thumbnails/${thumbnail}`}
                             alt={title}
-                            className="w-full h-80 rounded-2xl object-cover"
+                            className="w-full h-80 rounded-2xl object-contain"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70 flex items-end p-6">
                             <h1 className="text-4xl font-bold text-white">{title}</h1>
@@ -111,9 +107,9 @@ const CourseDetailsPage = () => {
                                         <p><strong>Description:</strong> {description}</p>
                                         <p><strong>Duration:</strong> {duration}</p>
                                         <p><strong>Level:</strong> {level}</p>
-                                        <p><strong>Created By:</strong> {creator}</p>
-                                        <p><strong>Created Date:</strong> {createdDate}</p>
-                                        <p><strong>Total Lessons:</strong> {totalLessons}</p>
+                                        <p><strong>Created By:</strong> {created_by.name}</p>
+                                        <p><strong>Created Date:</strong> {created_at}</p>
+                                        <p><strong>Total Lessons:</strong> {lessons.length}</p>
                                     </div>
                                 </div>
                             )}
@@ -129,7 +125,7 @@ const CourseDetailsPage = () => {
                                     <div className="space-y-4 mb-6">
                                         {reviewList.map((review) => (
                                             <div key={review.id} className="p-4 border rounded-lg bg-white shadow-sm">
-                                                <p className="font-semibold">{review.user}</p>
+                                                <p className="font-semibold">{review.user_id.name}</p>
                                                 <div className="text-yellow-500 flex space-x-1 mb-2">
                                                     {[...Array(5)].map((_, index) => (
                                                         <FaStar
@@ -139,7 +135,7 @@ const CourseDetailsPage = () => {
                                                     ))}
                                                 </div>
                                                 <p className="text-gray-700">{review.comment}</p>
-                                                <p className="text-gray-500 text-sm">{review.date}</p>
+                                                <p className="text-gray-500 text-sm">{review.created_at}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -193,9 +189,9 @@ const CourseDetailsPage = () => {
                 {/* Sidebar */}
                 <div className="w-full lg:w-80 lg:ml-6 lg:mt-8 lg:mr-4 p-6 bg-white sticky top-0 h-1/4 rounded-2xl shadow-lg ">
                     <img
-                        src={thumbnail}
+                        src={`http://localhost:3000/thumbnails/${thumbnail}`}
                         alt={title}
-                        className="w-full h-40 object-cover rounded-2xl mb-4"
+                        className="w-full h-40 object-contain rounded-2xl mb-4"
                     />
                     <p className="text-2xl font-semibold text-gray-800 mb-4">Npr.{price}</p>
                     <button

@@ -18,15 +18,16 @@ const Login = () => {
       }else if(token!==null && role==='student'){
         navigate('/')
       }
-    })
+    },[token, role, navigate])
     const handleLogin = async (e) => {
       e.preventDefault();
       try {
           const response = await axios.post('http://localhost:3000/api/user/login', { email, password });
           console.log(response)
-          const { token, role } = response.data;
+          const { token, role,id } = response.data;
           localStorage.setItem('token', token);
           localStorage.setItem('role', role);
+          localStorage.setItem('userid', id);
 
           if (role === 'tutor') {
               navigate('/tutor/dashboard');

@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import AddLessonModal from './AddLessonModal'; // Import the modal component
 
 const LessonListPage = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const initialLessons = location.state?.lessons || [];
+  const [lessons, setLessons] = useState(initialLessons);
+  console.log(lessons);
 
-  // Dummy list of lessons
-  const [lessons, setLessons] = useState([
-    { id: '1', title: 'Introduction to React', content: 'This is the content for Introduction to React.' },
-    { id: '2', title: 'State and Props', content: 'This is the content for State and Props.' },
-    { id: '3', title: 'Lifecycle Methods', content: 'This is the content for Lifecycle Methods.' },
-  ]);
 
   const handleLessonClick = (lessonId) => {
     navigate(`/tutor/courses/${courseId}/lessons/${lessonId}`, { state: { lessons } });
@@ -36,8 +34,8 @@ const LessonListPage = () => {
         <ul className="space-y-4">
           {lessons.map(lesson => (
             <li
-              key={lesson.id}
-              onClick={() => handleLessonClick(lesson.id)}
+              key={lesson._id}
+              onClick={() => handleLessonClick(lesson._id)}
               className="p-5 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer transform hover:scale-105 hover:bg-gray-100"
             >
               <h2 className="text-2xl font-semibold text-gray-700">{lesson.title}</h2>
@@ -49,6 +47,7 @@ const LessonListPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleAddLesson}
+          courseId={courseId}
         />
       </div>
     </div>

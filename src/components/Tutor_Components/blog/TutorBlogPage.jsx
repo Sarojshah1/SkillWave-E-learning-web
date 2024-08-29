@@ -1,37 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import BlogCard from './TutorBlogCard'; // Ensure this path is correct
 import { FaSearch } from 'react-icons/fa';
-
-const blogs = [
-    {
-        id:1,
-        title: 'Understanding React Hooks',
-        createdDate: '2024-08-12',
-        tags: ['React', 'JavaScript', 'Frontend']
-    },
-    {
-        id:2,
-        title: 'Introduction to Tailwind CSS',
-        createdDate: '2024-07-29',
-        tags: ['Tailwind', 'CSS', 'Design']
-    },
-    {
-        id:3,
-        title: 'Building REST APIs with Node.js',
-        createdDate: '2024-06-18',
-        tags: ['Node.js', 'Backend', 'API']
-    },
-    {
-        id:4,
-        title: 'Mastering Python for Data Science',
-        createdDate: '2024-08-05',
-        tags: ['Python', 'Data Science', 'Machine Learning']
-    },
-
-];
+import axios from 'axios';
 
 const TutorBlogPage = () => {
+    const [blogs, setBlogs] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+
+        const fetchBlogs = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/blog/blogs',{
+                    headers: {
+                      Authorization: `Bearer ${token}`
+                    },
+                  });
+                  console.log(response);
+                setBlogs(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to fetch blogs. Please try again later.');
+                setLoading(false);
+            }
+        };
+
+        fetchBlogs();
+    }, []);
 
     const filteredBlogs = blogs.filter(blog =>
         blog.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -55,11 +53,13 @@ const TutorBlogPage = () => {
                     {filteredBlogs.length > 0 ? (
                         filteredBlogs.map((blog) => (
                             <BlogCard
-                            id={blog.id}
-                                key={blog.id}
+                            id={blog._id}
+                                key={blog._id}
                                 title={blog.title}
-                                createdDate={blog.createdDate}
+                                createdDate={blog.created_at}
                                 tags={blog.tags}
+                                creatorName={blog.user_id.name}
+                                content={blog.content}
                             />
                         ))
                     ) : (

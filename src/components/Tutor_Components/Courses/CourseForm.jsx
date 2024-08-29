@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { FiEdit } from 'react-icons/fi'; // Importing an edit icon
+import axios from 'axios';
 
 const CourseForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,21 @@ const CourseForm = ({ onSubmit }) => {
     thumbnail: null,
     thumbnailPreview: '',
   });
+  const token = localStorage.getItem("token");
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/category');
+        console.log(response)
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -35,9 +51,32 @@ const CourseForm = ({ onSubmit }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    onSubmit(formData);
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('category_id', formData.category_id);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('duration', formData.duration);
+    formDataToSend.append('level', formData.level);
+    if (formData.thumbnail) {
+      formDataToSend.append('thumbnail', formData.thumbnail);
+    }
+    console.log(formData);
+    try {
+      const response = await axios.post('http://localhost:3000/api/courses', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        },
+      });
+      console.log('Course created:', response.data);
+      onSubmit(response.data);
+    } catch (error) {
+      console.error('Error creating course:', error);
+    }
   };
 
   return (
@@ -113,10 +152,12 @@ const CourseForm = ({ onSubmit }) => {
           className="mt-1 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
-          <option value="">Select a category</option>
-          <option value="1">Web Development</option>
-          <option value="2">Design</option>
-          <option value="3">Data Science</option>
+        <option value="">Select a category</option>
+           {categories.map((category) => (
+            <option key={category._id} value={category._id}>
+              {category.name}
+            </option>
+          ))}
         </select>
       </div>
 

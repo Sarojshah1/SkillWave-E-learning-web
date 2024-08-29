@@ -41,7 +41,6 @@ const NavBar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  console.log(userProfile)
 
   const handleLogout = () => {
     // Perform logout logic here, e.g., clearing tokens, etc.
@@ -119,7 +118,7 @@ const NavBar = () => {
                 </svg>
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md ring-1 ring-black ring-opacity-5 transition-opacity duration-300">
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md ring-1 ring-black ring-opacity-5 transition-opacity duration-300 z-20">
                   {profileOptions.map((option, index) =>
                     option.action ? (
                       <button

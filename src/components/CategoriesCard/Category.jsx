@@ -11,14 +11,14 @@ const categoryIcons = {
     'Project Management': <FaProjectDiagram size={40} className="text-primary" />,
 };
 
-const CategoriesCard = ({ title, description, onClick }) => {
+const CategoriesCard = ({ title, description,icon, onClick }) => {
     return (
         <div
             className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer flex flex-col items-center p-6"
             onClick={onClick}
         >
             <div className="mb-4">
-                {categoryIcons[title]}
+            <img src={`http://localhost:3000/icon/${icon}`} alt={title} className="w-20 h-20 object-cover" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{title}</h3>
             <p className="text-gray-700 mb-4 text-center">{description}</p>

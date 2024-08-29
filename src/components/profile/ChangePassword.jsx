@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { FaLock, FaLockOpen, FaKey } from 'react-icons/fa';
-
+import axios from 'axios';
 const ChangePassword = () => {
   const [passwords, setPasswords] = useState({
-    currentPassword: '',
+    oldPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-
+  const [success, setSuccess] = useState('');
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPasswords((prevPasswords) => ({
@@ -17,9 +17,9 @@ const ChangePassword = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    const { currentPassword, newPassword, confirmPassword } = passwords;
+    const { oldPassword, newPassword, confirmPassword } = passwords;
 
     // Basic validation
     if (newPassword !== confirmPassword) {
@@ -27,14 +27,33 @@ const ChangePassword = () => {
       return;
     }
 
-    // Handle password change logic here (e.g., API call)
-    console.log('Password changed:', {
-      currentPassword,
-      newPassword,
-    });
+    try {
+      // Make the API call to change the password
+      const token = localStorage.getItem("token");
+      console.log(token);
+      console.log(oldPassword,newPassword);
+      const response = await axios.put(
+        'http://localhost:3000/api/user/change-password',
+        {
+          "oldPassword": oldPassword,
+          "newPassword": newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
 
-    // Clear error on successful submission
-    setError('');
+      // Handle success response
+      setSuccess('Password changed successfully!');
+      setError('');
+    } catch (error) {
+      // Handle error response
+      setError('Failed to change password. Please try again.');
+      console.error('Error changing password:', error);
+    }
   };
 
   return (
@@ -43,13 +62,13 @@ const ChangePassword = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Change Password</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4 relative">
-            <label htmlFor="currentPassword" className="block text-gray-700 mb-2">
+            <label htmlFor="oldPassword" className="block text-gray-700 mb-2">
               <FaLockOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="password"
-                id="currentPassword"
-                name="currentPassword"
-                value={passwords.currentPassword}
+                id="oldPassword"
+                name="oldPassword"
+                value={passwords.oldPassword}
                 onChange={handleChange}
                 className="pl-10 py-3 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Current Password"

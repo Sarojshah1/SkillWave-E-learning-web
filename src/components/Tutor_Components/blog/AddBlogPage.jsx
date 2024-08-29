@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiUpload, FiFileText } from 'react-icons/fi';
+import axios from 'axios';
 
 const AddBlogPage = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -33,9 +34,35 @@ const AddBlogPage = ({ onSubmit }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
+    const token = localStorage.getItem("token");
     e.preventDefault();
-    onSubmit(formData);
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append('title', formData.title);
+    formDataToSubmit.append('tags', formData.tags);
+    if (formData.content) {
+      formDataToSubmit.append('content', formData.content);
+    }
+
+    try {
+      await axios.post('http://localhost:3000/api/blog/blogs', formDataToSubmit, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        },
+      });
+      alert('Blog added successfully!');
+      setFormData({
+        title: '',
+        tags: '',
+        content: null,
+        contentPreview: '',
+      });
+      // Reset form or redirect
+    } catch (error) {
+      console.error('Error uploading blog:', error);
+      alert('Failed to add blog.');
+    }
   };
 
   return (

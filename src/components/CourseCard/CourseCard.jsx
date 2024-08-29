@@ -10,9 +10,9 @@ const CourseCard = ({ thumbnail, title, description, price, duration, level, cre
         >
             <div className="relative">
                 <img
-                    src={thumbnail}
+                    src={`http://localhost:3000/thumbnails/${thumbnail}`}
                     alt={title}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    className="w-full h-48 object-contain rounded-t-lg"
                 />
                 <div className="absolute top-0 right-0 m-4 bg-gray-800 text-white px-3 py-1 text-xs font-medium rounded-full">
                     {level}

@@ -1,136 +1,160 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios"; // Assuming you're using Axios for API calls
 import { FaEdit, FaGraduationCap, FaCertificate, FaCog } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import CourseCard from "../CourseCard/CourseCard";
 import PersonalInfo from "./PersonalInfo";
 import CertificateCard from "./CertificateCard";
 import QuizCard from './QuizCard';
-const courses = [
-  {
-    thumbnail: "https://via.placeholder.com/300x200",
-    title: "Introduction to React",
-    description:
-      "Learn the basics of React, including components, props, and state.",
-    price: "Npr.4999",
-    duration: "4 hours",
-    level: "Beginner",
-    creator: "Jane Smith",
-    onClick: () => alert("Enrolled in Introduction to React"),
-  },
-  {
-    thumbnail: "https://via.placeholder.com/300x200",
-    title: "Advanced JavaScript",
-    description:
-      "Deep dive into JavaScript ES6+ features and advanced concepts.",
-    price: "Npr.6999",
-    duration: "6 hours",
-    level: "Intermediate",
-    creator: "John Doe",
-    onClick: () => alert("Enrolled in Advanced JavaScript"),
-  },
-  {
-    thumbnail: "https://via.placeholder.com/300x200",
-    title: "Web Development Bootcamp",
-    description: "Comprehensive course covering HTML, CSS, and JavaScript.",
-    price: "Npr.1999",
-    duration: "12 hours",
-    level: "Advanced",
-    creator: "Emily Johnson",
-    onClick: () => alert("Enrolled in Web Development Bootcamp"),
-  },
-];
-
-// Sample data for certificates
-const certificates = [
-  {
-    id: 1,
-    title: "Certified React Developer",
-    issuedBy: "Udemy",
-    issuedDate: "2024-01-15",
-    description:
-      "Certification for completing the React development course with proficiency.",
-    badge: "https://via.placeholder.com/100x100", // Placeholder badge image
-  },
-  {
-    id: 2,
-    title: "JavaScript Mastery",
-    issuedBy: "Coursera",
-    issuedDate: "2024-02-20",
-    description: "Achievement in advanced JavaScript concepts and techniques.",
-    badge: "https://via.placeholder.com/100x100", // Placeholder badge image
-  },
-  {
-    id: 3,
-    title: "Web Development Specialist",
-    issuedBy: "LinkedIn Learning",
-    issuedDate: "2024-03-10",
-    description:
-      "Certification for mastering web development fundamentals and best practices.",
-    badge: "https://via.placeholder.com/100x100", // Placeholder badge image
-  },
-];
-
-const quizzes = [
-    {
-      id: 1,
-      title: 'React Basics Quiz',
-      score: '85%',
-      completionDate: '2024-07-15',
-      description: 'A quiz covering the fundamental concepts of React.',
-    },
-    {
-      id: 2,
-      title: 'JavaScript Advanced Quiz',
-      score: '90%',
-      completionDate: '2024-07-20',
-      description: 'A quiz focused on advanced JavaScript topics and techniques.',
-    },
-    {
-      id: 3,
-      title: 'Web Development Fundamentals',
-      score: '80%',
-      completionDate: '2024-08-05',
-      description: 'A quiz on essential web development concepts.',
-    },
-  ];
+import { toast } from "react-toastify";
 
 const ProfileScreen = () => {
   const [activeTab, setActiveTab] = useState("info");
-  const [profilePic, setProfilePic] = useState("https://via.placeholder.com/120");
+  const [user, setUser] = useState({
+    name: '',
+    profilePic: '', // Default placeholder
+    email: '',
+    bio:'',
+  });
+  const token = localStorage.getItem("token");
+  const [courses, setCourses] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
+
+  useEffect(() => {
+    // Fetch user data from the API
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/user/profile',{
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+        }); 
+        console.log(response.data.enrolled_courses);
+        setUser({
+          name: response.data.name,
+          profilePic: response.data.profile_picture || 'https://via.placeholder.com/120',
+          email: response.data.email,
+          bio:response.data.bio,
+          courses: response.data.enrolled_courses|| []
+        });
+        setCourses(response.data.enrolled_courses);
+        setCertificates(response.data.certificates);
+        setQuizzes(response.data.quiz_results);
+        
+        console.log(user)
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    // Fetch additional data if needed
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get('/api/user/courses');
+        setCourses(response.data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    const fetchCertificates = async () => {
+      try {
+        const response = await axios.get('/api/user/certificates');
+        setCertificates(response.data);
+      } catch (error) {
+        console.error("Error fetching certificates:", error);
+      }
+    };
+
+    const fetchQuizzes = async () => {
+      try {
+        const response = await axios.get('/api/user/quizzes');
+        setQuizzes(response.data);
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      }
+    };
+
+    fetchUserData();
+    fetchCourses();
+    fetchCertificates();
+    fetchQuizzes();
+  }, []);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
-  const handleQuizClick = (id) => {
-    // Handle quiz card click, e.g., navigate to quiz details
-    console.log(`Quiz clicked: ${id}`);
-  };
-  const handleProfilePicChange = (event) => {
+  console.log(courses)
+
+  // const handleProfilePicChange = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setUser((prevUser) => ({
+  //         ...prevUser,
+  //         profilePic: reader.result
+  //       }));
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+  const handleProfilePicUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfilePic(reader.result);
+        setUser((prevUser) => ({
+          ...prevUser,
+          profilePic: reader.result
+        }));
       };
       reader.readAsDataURL(file);
     }
+    console.log(file);
+    if (!file) {
+      toast.error('No file selected.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+
+    try {
+      await axios.put('http://localhost:3000/api/user/update-profile-picture', {
+        'profile_picture':file
+      }, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success('Profile picture updated successfully!');
+      // Optionally fetch the updated user data
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      toast.error('Failed to update profile picture.');
+    }
   };
+console.log(user.profilePic)
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <div className="flex items-center space-x-6 border-b pb-4">
-        <div className="relative">
+          <div className="relative">
             <img
-              src={profilePic}
+              src={`http://localhost:3000/profile/${user.profilePic}`}
               alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-primary"
+              className="w-32 h-32 rounded-full object-contain border-4 border-primary"
             />
             <input
               type="file"
               id="profilePicInput"
               className="absolute bottom-0 right-0 opacity-0 cursor-pointer"
               accept="image/*"
-              onChange={handleProfilePicChange}
+              onChange={handleProfilePicUpload}
             />
             <label
               htmlFor="profilePicInput"
@@ -138,11 +162,12 @@ const ProfileScreen = () => {
             >
               <FaEdit />
             </label>
+            
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">John Doe</h1>
+            <h1 className="text-3xl font-bold text-gray-800">{user.name}</h1>
             <p className="text-gray-600 mt-1">
-              “Learning is a continuous journey.”
+              “{user.bio}”
             </p>
             <div className="mt-4">
               <button className="bg-primary text-white px-6 py-3 rounded-full border border-primary hover:bg-primary-dark transition duration-300">
@@ -168,7 +193,7 @@ const ProfileScreen = () => {
             )}
           </div>
           <div>
-            {activeTab === "info" && <PersonalInfo />}
+            {activeTab === "info" && <PersonalInfo user={user} />}
             {activeTab === "courses" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                 {courses.map((course, index) => (
@@ -181,7 +206,7 @@ const ProfileScreen = () => {
                     duration={course.duration}
                     level={course.level}
                     creator={course.creator}
-                    onClick={course.onClick}
+                    onClick={() => console.log(`Course clicked: ${course.title}`)}
                   />
                 ))}
               </div>
@@ -198,14 +223,12 @@ const ProfileScreen = () => {
                       issuedBy={certificate.issuedBy}
                       issuedDate={certificate.issuedDate}
                       description={certificate.description}
-                      link={`/certificate-details/${certificate.id}`} // If using <a> tag
-                      // onClick={() => handleCertificateClick(certificate.id)} // If using onClick
+                      link={`/certificate-details/${certificate.id}`} 
                     />
                   ))}
                 </div>
               </div>
             )}
-
             {activeTab === "quizzes" && (
               <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4">Quizzes Results</h2>
@@ -217,7 +240,7 @@ const ProfileScreen = () => {
                       score={quiz.score}
                       completionDate={quiz.completionDate}
                       description={quiz.description}
-                      onClick={() => handleQuizClick(quiz.id)}
+                      onClick={() => console.log(`Quiz clicked: ${quiz.id}`)}
                     />
                   ))}
                 </div>

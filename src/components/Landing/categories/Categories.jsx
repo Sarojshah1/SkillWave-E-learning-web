@@ -1,40 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CategoriesCard from '../../CategoriesCard/Category';
+import axios from 'axios';
 
-const categories = [
-    {
-        title: 'Web Development',
-        description: 'Build websites with HTML, CSS, and JavaScript.',
-        onClick: () => console.log('Web Development clicked'),
-    },
-    {
-        title: 'Data Science',
-        description: 'Analyze data and create visualizations using Python.',
-        onClick: () => console.log('Data Science clicked'),
-    },
-    {
-        title: 'Digital Marketing',
-        description: 'Master SEO, SEM, and social media strategies.',
-        onClick: () => console.log('Digital Marketing clicked'),
-    },
-    {
-        title: 'Graphic Design',
-        description: 'Create stunning visuals using design software.',
-        onClick: () => console.log('Graphic Design clicked'),
-    },
-    {
-        title: 'Cyber Security',
-        description: 'Learn to protect systems and data from attacks.',
-        onClick: () => console.log('Cyber Security clicked'),
-    },
-    {
-        title: 'Project Management',
-        description: 'Manage projects efficiently using modern methodologies.',
-        onClick: () => console.log('Project Management clicked'),
-    },
-];
 
 const CategoriesPage = () => {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        // Fetch categories from the backend
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/category'); // Adjust the endpoint as needed
+                console.log(response)
+                setCategories(response.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
     return (
         <div className="p-8">
             <h2 className="text-3xl font-bold mb-6">Explore Our Categories</h2>
@@ -42,7 +27,8 @@ const CategoriesPage = () => {
                 {categories.map((category, index) => (
                     <CategoriesCard
                         key={index}
-                        title={category.title}
+                        title={category.name}
+                        icon={category.icon}
                         description={category.description}
                         onClick={category.onClick}
                     />

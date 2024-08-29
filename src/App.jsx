@@ -33,6 +33,7 @@ import LessonContentPage from './components/Tutor_Components/Courses/LessonConte
 import CustomerSupportPage from './components/Tutor_Components/customersupport/CustomerSupportPage.jsx';
 import CheckoutPage from './components/Courses/CheckoutPage.jsx';
 import { useNavigate,Navigate } from 'react-router-dom';
+
 const ProtectedRoute = ({ children, requiredRole }) => {
   const navigate = useNavigate();
   const role=localStorage.getItem('role');
@@ -186,7 +187,12 @@ function App() {
         },
         {
           path: '/tutor/blogs/:id',
-          element: <TutorBlogDetailPage />,
+          element:
+          (
+            <ProtectedRoute requiredRole="tutor">
+               <TutorBlogDetailPage />
+            </ProtectedRoute>
+          ),
         },
         {
           path: '/tutor/blogs/add',

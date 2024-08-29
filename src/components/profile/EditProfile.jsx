@@ -1,14 +1,39 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { set } from "react-hook-form";
 import { FaUser, FaEnvelope, FaLock, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
-
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const EditProfile = () => {
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "123-456-7890",
-    address: "123 Main St, Anytown, USA",
-    password: "",
+    name: "",
+    email: "",
+    bio:""
   });
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    
+    if (token) {
+      axios
+        .get("http://localhost:3000/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` }, // Attach token in the headers
+        })
+        .then((response) => {
+          setProfileData({
+            name:response.data.name,
+            email:response.data.email,
+            bio:response.data.bio
+
+          })
+        })
+        .catch((error) => {
+          console.error("Error fetching user details:", error);
+          
+        });
+    }
+
+   
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +45,24 @@ const EditProfile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Profile updated:", profileData);
+    if (token) {
+      axios
+        .put(
+          "http://localhost:3000/api/user/update-details",
+          profileData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((response) => {
+          toast.success("Profile updated successfully!");
+          console.log("Profile updated successfully:", response.data);
+        })
+        .catch((error) => {
+          toast.error("Error updating profile. Please try again.");
+          console.error("Error updating profile:", error);
+        });
+    }
   };
 
   return (
@@ -58,45 +99,16 @@ const EditProfile = () => {
                 />
               </label>
             </div>
-            <div className="relative">
-              <label htmlFor="phone" className="block text-gray-700 mb-2">
-                <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  value={profileData.phone}
-                  onChange={handleChange}
-                  className="pl-10 py-3 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Phone"
-                />
-              </label>
-            </div>
-            <div className="relative">
-              <label htmlFor="address" className="block text-gray-700 mb-2">
-                <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={profileData.address}
-                  onChange={handleChange}
-                  className="pl-10 py-3 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Address"
-                />
-              </label>
-            </div>
             <div className="relative col-span-2">
-              <label htmlFor="password" className="block text-gray-700 mb-2">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={profileData.password}
+              <label htmlFor="bio" className="block text-gray-700 mb-2">
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={profileData.bio}
                   onChange={handleChange}
-                  className="pl-10 py-3 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="New Password"
+                  className="pl-3 py-3 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Bio"
+                  rows="4"
                 />
               </label>
             </div>

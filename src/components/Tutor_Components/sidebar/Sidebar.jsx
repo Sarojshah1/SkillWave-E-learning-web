@@ -1,11 +1,11 @@
 import React, { useState,useEffect } from 'react';
 import { NavLink,useNavigate  } from 'react-router-dom';
 import axios from 'axios';
-import { 
-  FaChalkboardTeacher, FaBook, FaCalendarAlt, 
+import {
+  FaChalkboardTeacher, FaBook, FaCalendarAlt,
   FaEnvelope, FaCogs, FaDollarSign, FaBlog, FaStar,
-  FaChevronDown, FaChevronUp, FaList, FaPlus 
-  , FaHeadset
+  FaChevronDown, FaChevronUp, FaList, FaPlus,
+  FaHeadset
 } from 'react-icons/fa';
 import { CiLogout } from "react-icons/ci";
 
@@ -14,7 +14,7 @@ const Sidebar = () => {
   const [isCoursesDropdownOpen, setIsCoursesDropdownOpen] = useState(false);
   const [isBlogsDropdownOpen, setIsBlogsDropdownOpen] = useState(false);
   const [userProfile, setUserProfile] = useState({});
-
+  const [selectedFile, setSelectedFile] = useState(null);
   const toggleCoursesDropdown = () => {
     setIsCoursesDropdownOpen(!isCoursesDropdownOpen);
   };
@@ -27,6 +27,33 @@ const Sidebar = () => {
     localStorage.removeItem("token"); // Example: Clearing token from localStorage
     navigate("/login"); // Redirect to login page
   };
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+  const handleUpload = async () => {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append('profile_picture', selectedFile);
+
+    try {
+      const response = await axios.put('http://localhost:3000/api/user/update-profile-picture',  {
+        'profile_picture':selectedFile
+      }, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setUserProfile((prevProfile) => ({
+        ...prevProfile,
+        profile_picture: response.data.profile_picture
+      }));
+    } catch (error) {
+      console.error('Error updating profile picture:', error);
+    }
+    window.location.reload();
+  };
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,12 +77,29 @@ const Sidebar = () => {
     <div className="bg-gradient-to-b from-teal-700 to-teal-900 text-white w-64 h-screen p-6 flex flex-col shadow-2xl">
       {/* Profile Section */}
       <div className="flex flex-col items-center mb-8">
-        <img
-          src={`http://localhost:3000/profile/${userProfile.profile_picture}`}
-          alt="Profile"
-          className="w-24 h-24 rounded-full mb-2 border-2 border-white transition-transform transform hover:scale-105"
-        />
-        <div className="text-center">
+        <div className="relative">
+          <img
+            src={`http://localhost:3000/profile/${userProfile.profile_picture}`}
+            alt="Profile"
+            className="w-24 h-24 rounded-full mb-2 border-2 border-white transition-transform transform hover:scale-105"
+          />
+          <label className="absolute bottom-0 right-0 bg-teal-500 p-1 rounded-full cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <FaPlus className="text-white" />
+          </label>
+        </div>
+        <button
+          onClick={handleUpload}
+          className="mt-2 bg-teal-500 text-white px-4 py-2 rounded-lg transition duration-200 hover:bg-teal-600"
+        >
+          Upload
+        </button>
+        <div className="text-center mt-4">
           <h3 className="text-lg font-semibold">{userProfile.name}</h3>
           <p className="text-sm text-gray-300 mb-1">{userProfile.email}</p>
           <div className="flex items-center justify-center">

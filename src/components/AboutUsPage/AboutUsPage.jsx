@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaUserFriends, FaLightbulb, FaStar, FaQuoteLeft, FaTrophy, FaEnvelope } from 'react-icons/fa';
+import profile from '../../assets/profile.png'
 
 const AboutUsPage = () => {
     return (
@@ -45,27 +46,27 @@ const AboutUsPage = () => {
                     <h2 className="text-4xl font-bold mb-8 text-gray-800 text-center">Meet Our Team</h2>
                     <div className="grid md:grid-cols-3 gap-12">
                         <div className="bg-white p-6 rounded-lg shadow-lg text-center transition-transform transform hover:scale-105">
-                            <img src="https://via.placeholder.com/150" alt="Jane Doe" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
-                            <h3 className="text-2xl font-semibold mb-2">Jane Doe</h3>
+                            <img src={profile} alt="Jane Doe" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
+                            <h3 className="text-2xl font-semibold mb-2">Saroj kumar Sah</h3>
                             <p className="text-gray-600">CEO & Founder</p>
                             <p className="mt-2">
-                                Jane is a visionary leader with a passion for education and technology. She is dedicated to creating an inclusive learning environment that empowers students worldwide.
+                                Saroj is a visionary leader with a passion for education and technology. He is dedicated to creating an inclusive learning environment that empowers students worldwide.
                             </p>
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow-lg text-center transition-transform transform hover:scale-105">
-                            <img src="https://via.placeholder.com/150" alt="John Smith" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
-                            <h3 className="text-2xl font-semibold mb-2">John Smith</h3>
+                            <img src={profile} alt="John Smith" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
+                            <h3 className="text-2xl font-semibold mb-2">Saroj kumar Sah</h3>
                             <p className="text-gray-600">CTO</p>
                             <p className="mt-2">
-                                John is a tech enthusiast with expertise in e-learning solutions. He drives innovation to enhance our platform's functionality and user experience.
+                                Saroj is a tech enthusiast with expertise in e-learning solutions. He drives innovation to enhance our platform's functionality and user experience.
                             </p>
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow-lg text-center transition-transform transform hover:scale-105">
-                            <img src="https://via.placeholder.com/150" alt="Emily Johnson" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
-                            <h3 className="text-2xl font-semibold mb-2">Emily Johnson</h3>
+                            <img src={profile} alt="Emily Johnson" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-600"/>
+                            <h3 className="text-2xl font-semibold mb-2">Saroj kumar Sah</h3>
                             <p className="text-gray-600">Content Manager</p>
                             <p className="mt-2">
-                                Emily curates and creates engaging content that resonates with learners. Her goal is to ensure that our educational materials are relevant, up-to-date, and impactful.
+                                Saroj curates and creates engaging content that resonates with learners. His goal is to ensure that our educational materials are relevant, up-to-date, and impactful.
                             </p>
                         </div>
                     </div>
