@@ -14,12 +14,14 @@ const CourseContentPage = () => {
     console.log(enrollid)
     console.log(progress)
     const [activeLesson, setActiveLesson] = useState(null);
+    const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [showQuiz, setShowQuiz] = useState(false);
     const [answers, setAnswers] = useState({});
     const [timer, setTimer] = useState(300); // 5 minutes timer
     const [intervalId, setIntervalId] = useState(null);
     const [score, setScore] = useState(null);
     const [lessons, setLessons] = useState([]);
+    const [quizzes, setQuizzes] = useState([]);
     const [courseData, setCourseData] = useState(null);
     const { id } = useParams();
     const token = localStorage.getItem("token");
@@ -30,9 +32,11 @@ const CourseContentPage = () => {
                 const response = await axios.get(`http://localhost:3000/api/courses/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                console.log(response)
                 setCourseData(response.data);
                 setLessons(response.data.lessons);
-                setActiveLesson(response.data.lessons[0]._id); // Set the first lesson as active by default
+                setActiveLesson(response.data.lessons[0]._id); 
+                setQuizzes(response.data.quizzes );
             } catch (error) {
                 console.error("Error fetching course data:", error);
             }
@@ -41,16 +45,13 @@ const CourseContentPage = () => {
         fetchCourseData();
     }, [id]);
 
+    console.log(quizzes._id)
+
     const handleAnswerChange = (quizId, option) => {
         setAnswers(prev => ({ ...prev, [quizId]: option }));
     };
 
-    const calculateScore = () => {
-        const correctAnswers = quizzes.filter(quiz => answers[quiz.id] === quiz.answer).length;
-        setScore(correctAnswers);
-        setShowQuiz(false); // Optionally hide quiz after submission
-        clearInterval(intervalId);
-    };
+   
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -111,26 +112,30 @@ const CourseContentPage = () => {
                 <aside className="w-64 bg-gray-200 p-4 shadow-lg">
                     <LessonList
                         lessons={lessons}
+                        quizzes={quizzes}
                         activeLesson={activeLesson}
                         setActiveLesson={setActiveLesson}
                         toggleQuiz={setShowQuiz}
                         showQuiz={showQuiz}
+                        setSelectedQuiz={setSelectedQuiz}
                     />
+                    
                 </aside>
 
                 {/* Main Content Area */}
                 <main className="flex-1 p-8 bg-gray-100">
-                    {showQuiz ? (
+                {showQuiz && selectedQuiz ? (
                         <div className="flex flex-col items-center">
                             <QuizTimer timer={timer} formatTime={formatTime} />
                             <Quiz
-                                quizzes={quizzes}
+                                quizId={selectedQuiz._id}
                                 handleAnswerChange={handleAnswerChange}
                                 answers={answers}
-                                calculateScore={calculateScore}
+                                // calculateScore={calculateScore}
                                 timer={timer}
                                 formatTime={formatTime}
-                                score={score}
+                                courseId={courseData._id}
+                                // score={score}
                             />
                         </div>
                     ) : (

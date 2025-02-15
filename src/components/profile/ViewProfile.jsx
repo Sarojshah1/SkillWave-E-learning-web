@@ -86,6 +86,8 @@ const ProfileScreen = () => {
     setActiveTab(tab);
   };
   console.log(courses)
+  console.log(certificates)
+  console.log(quizzes)
 
   // const handleProfilePicChange = (event) => {
   //   const file = event.target.files[0];
@@ -217,12 +219,12 @@ console.log(user.profilePic)
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {certificates.map((certificate) => (
                     <CertificateCard
-                      key={certificate.id}
-                      badge={certificate.badge}
-                      title={certificate.title}
-                      issuedBy={certificate.issuedBy}
-                      issuedDate={certificate.issuedDate}
-                      description={certificate.description}
+                      key={certificate._id}
+                      badge={certificate.certificate}
+                      title={certificate.course_id.title}
+                      issuedBy='saroj kumar sah'
+                      issuedDate={certificate.issued_at}
+                      description={certificate.course_id.description}
                       link={`/certificate-details/${certificate.id}`} 
                     />
                   ))}
@@ -235,12 +237,12 @@ console.log(user.profilePic)
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {quizzes.map((quiz) => (
                     <QuizCard
-                      key={quiz.id}
-                      title={quiz.title}
+                      key={quiz._id}
+                      title={quiz.quiz_id.title}
                       score={quiz.score}
-                      completionDate={quiz.completionDate}
-                      description={quiz.description}
-                      onClick={() => console.log(`Quiz clicked: ${quiz.id}`)}
+                      completionDate={quiz.attempted_at}
+                      description={quiz.quiz_id.description}
+                      onClick={() => console.log(`Quiz clicked: ${quiz._id}`)}
                     />
                   ))}
                 </div>

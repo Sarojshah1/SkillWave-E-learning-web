@@ -5,7 +5,7 @@ import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
 
 const NavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set to false initially
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -17,12 +17,12 @@ const NavBar = () => {
     if (token) {
       axios
         .get("http://localhost:3000/api/user/profile", {
-          headers: { Authorization: `Bearer ${token}` }, // Attach token in the headers
+          headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           setIsLoggedIn(true);
-          setUserName(response.data.name); // Assuming response contains the user name
-          setUserProfile(response.data); // Assuming response contains the profile picture URL
+          setUserName(response.data.name);
+          setUserProfile(response.data);
         })
         .catch((error) => {
           console.error("Error fetching user details:", error);
@@ -43,15 +43,23 @@ const NavBar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Perform logout logic here, e.g., clearing tokens, etc.
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/login");
   };
 
+  const handleNavLinkClick = (path) => {
+    if (window.location.pathname !== `/${path}`) {
+      navigate(`/${path}`);
+    } else {
+      window.location.reload();
+    }
+  };
+
   const navitems = [
     { link: "Home", path: "" },
     { link: "Courses", path: "courses" },
+    { link: "Posts", path: "posts" },
     { link: "Blog", path: "blogs" },
     { link: "Category", path: "category" },
     { link: "About Us", path: "aboutus" },
@@ -73,14 +81,13 @@ const NavBar = () => {
         </a>
         <div className="hidden md:flex space-x-12 items-center flex-grow justify-end">
           {navitems.map((item, index) => (
-            <NavLink
+            <button
               key={index}
-              to={`/${item.path}`}
+              onClick={() => handleNavLinkClick(item.path)}
               className="text-white block hover:font-bold hover:text-white"
-              end
             >
               {item.link}
-            </NavLink>
+            </button>
           ))}
         </div>
         <div className="hidden md:flex space-x-4 items-center ml-12">
@@ -123,19 +130,22 @@ const NavBar = () => {
                     option.action ? (
                       <button
                         key={index}
-                        onClick={option.action}
+                        onClick={() => {
+                          option.action();
+                          window.location.reload();
+                        }}
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
                       >
                         {option.link}
                       </button>
                     ) : (
-                      <NavLink
+                      <button
                         key={index}
-                        to={`/${option.path}`}
+                        onClick={() => handleNavLinkClick(option.path)}
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                       >
                         {option.link}
-                      </NavLink>
+                      </button>
                     )
                   )}
                 </div>
@@ -143,18 +153,18 @@ const NavBar = () => {
             </div>
           ) : (
             <>
-              <NavLink
-                to="/login"
+              <button
+                onClick={() => handleNavLinkClick("login")}
                 className="bg-white text-primary px-4 py-2 rounded-full border border-primary hover:bg-primary hover:text-white transition duration-300"
               >
                 Login
-              </NavLink>
-              <NavLink
-                to="/signup"
+              </button>
+              <button
+                onClick={() => handleNavLinkClick("signup")}
                 className="bg-primary text-white px-4 py-2 rounded-full border border-white hover:bg-white hover:text-primary transition duration-300"
               >
                 Signup
-              </NavLink>
+              </button>
             </>
           )}
         </div>

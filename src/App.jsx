@@ -33,16 +33,19 @@ import LessonContentPage from './components/Tutor_Components/Courses/LessonConte
 import CustomerSupportPage from './components/Tutor_Components/customersupport/CustomerSupportPage.jsx';
 import CheckoutPage from './components/Courses/CheckoutPage.jsx';
 import { useNavigate,Navigate } from 'react-router-dom';
+import QuizQuestionPage from './components/Tutor_Components/Courses/Quiz/QuizQuestionPage.jsx';
+import PostPage from './components/ForumPosts/PostPage.jsx';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
+  
   const navigate = useNavigate();
   const role=localStorage.getItem('role');
   console.log(role)
   if (role === null) {
-    return <Navigate to="/login" />; // Redirect to login if role is not found
+    return <Navigate to="/login" />; 
   }
   if (role !== requiredRole) {
-    return <Navigate to="/login" />; // Redirect to login if role does not match
+    return <Navigate to="/login" />; 
   }
 
   return children;
@@ -50,11 +53,16 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
 const AppLayout = () => (
   <>
-    <NavBar />
-    <Outlet/>
-    <Footer/>
+    <div className="fixed top-0 left-0 w-full z-50">
+      <NavBar />
+    </div>
+    <main className="pt-16"> 
+      <Outlet />
+    </main>
+    <Footer />
   </>
 );
+
 const NoLayout = () => <Outlet />;
 
 const TutorLayout = () => {
@@ -101,6 +109,10 @@ function App() {
         {
           path: '/contactus',
           element: <ContactUsPage />,
+        },
+        {
+          path: '/posts',
+          element: <PostPage/>,
         },
         {
           path: '/login',
@@ -191,6 +203,15 @@ function App() {
           (
             <ProtectedRoute requiredRole="tutor">
                <TutorBlogDetailPage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: '/tutor/courses/:courseId/quizzes/:quizId',
+          element:
+          (
+            <ProtectedRoute requiredRole="tutor">
+               <QuizQuestionPage />
             </ProtectedRoute>
           ),
         },

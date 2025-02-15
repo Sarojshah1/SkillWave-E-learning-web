@@ -1,8 +1,7 @@
 import React from 'react';
-import { FaChevronRight, FaBook,FaQuestionCircle } from 'react-icons/fa';
+import { FaChevronRight, FaBook } from 'react-icons/fa';
 
-const LessonList = ({ lessons, activeLesson, setActiveLesson, toggleQuiz, showQuiz }) => {
-    console.log(lessons);
+const LessonList = ({ quizzes, lessons, activeLesson, setActiveLesson, toggleQuiz, showQuiz, setSelectedQuiz }) => {
     return (
         <aside className="w-1/4 bg-white border-r border-gray-300 p-6 flex-shrink-0 fixed top-0 left-0 h-full overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">Course Lessons</h2>
@@ -14,6 +13,7 @@ const LessonList = ({ lessons, activeLesson, setActiveLesson, toggleQuiz, showQu
                         onClick={() => {
                             setActiveLesson(lesson._id);
                             toggleQuiz(false);  // Hide quiz when switching lessons
+                            setSelectedQuiz(null); // Deselect quiz when switching to a lesson
                         }}
                     >
                         <FaBook className={`text-2xl ${activeLesson === lesson._id ? 'text-white' : 'text-gray-700'}`} />
@@ -22,14 +22,24 @@ const LessonList = ({ lessons, activeLesson, setActiveLesson, toggleQuiz, showQu
                     </li>
                 ))}
             </ul>
+            {/* Quiz List */}
             <div className="mt-6">
-                <button
-                    className={`w-full p-3 rounded-lg text-white ${showQuiz ? 'bg-blue-500' : 'bg-gray-300 hover:bg-gray-400'}`}
-                    onClick={() => toggleQuiz(!showQuiz)}
-                >
-                    <FaQuestionCircle className="inline mr-2" />
-                    {showQuiz ? 'Hide Quiz' : 'Show Quiz'}
-                </button>
+                <h2 className="text-xl font-bold mb-4">Available Quizzes</h2>
+                <ul className="space-y-2">
+                    {quizzes.map((quiz) => (
+                        <li
+                            key={quiz._id}
+                            className={`cursor-pointer p-3 rounded-lg ${showQuiz &&  quiz._id ? 'bg-blue-100' : 'bg-gray-50'} hover:bg-gray-100 transition-colors`}
+                            onClick={() => {
+                                setSelectedQuiz(quiz);
+                                setActiveLesson(null); // Deselect lesson when selecting a quiz
+                                toggleQuiz(true); // Show quiz when selected
+                            }}
+                        >
+                            {quiz.title}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </aside>
     );

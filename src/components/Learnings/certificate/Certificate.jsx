@@ -1,11 +1,77 @@
-import React, { useRef } from 'react';
+import React, { useRef,useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from "../../../assets/logo.png";
+import axios from 'axios';
 
-const Certificate = ({ courseName, studentName, date, instructorName }) => {
+const Certificate = ({ courseName, studentName,  instructorName,courseId }) => {
     const certificateRef = useRef();
+    const formattedDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const token=localStorage.getItem('token');
+    const userid = localStorage.getItem('userid');
 
+    const base64ToBlob = (base64, contentType = 'image/png') => {
+        const byteCharacters = atob(base64);
+        const byteArrays = [];
+
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+
+        return new Blob(byteArrays, { type: contentType });
+    };
+
+    useEffect(() => {
+        const generateAndStoreCertificate = async () => {
+            const input = certificateRef.current;
+            const canvas = await html2canvas(input, {
+                scale: 3,
+                useCORS: true // Handle cross-origin images
+            });
+
+            // Convert canvas to blob
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                const file = new File([blob], 'certificate.png', { type: 'image/png' });
+
+                formData.append('certificate', file); 
+
+                // Add additional fields if necessary
+                formData.append('course_id', courseId);
+
+                // Call API to store the certificate
+                try {
+                    const response = await axios.post('http://localhost:3000/api/certificate', formData, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data' // Ensure multipart/form-data
+                        }
+                    });
+                    console.log('Certificate saved successfully:', response.data);
+                } catch (error) {
+                    console.error('Error saving certificate:', error);
+                }
+            }, 'image/png');
+        };
+
+        // generateAndStoreCertificate();
+        if (!window.certificateGenerated) {
+            window.certificateGenerated = true;
+            generateAndStoreCertificate();
+        }
+    }, [courseName, studentName, instructorName, formattedDate]);
     const downloadCertificate = () => {
         const input = certificateRef.current;
         html2canvas(input, {
@@ -44,16 +110,17 @@ const Certificate = ({ courseName, studentName, date, instructorName }) => {
                     <p className="text-lg font-semibold text-gray-600">has successfully completed the course</p>
                     <h2 className="text-3xl font-serif font-semibold text-gray-700 mt-4 italic">{courseName}</h2>
                     <p className="text-lg font-semibold text-gray-600 mt-4">on</p>
-                    <p className="text-2xl font-serif font-bold text-gray-800">{date}</p>
+                    <p className="text-2xl font-serif font-bold text-gray-800">{formattedDate}</p>
                 </div>
 
                 {/* Seal and Signature */}
                 <div className="flex justify-between items-center mt-16 px-8">
                     <div className="text-left">
                         <p className="text-gray-600">Date</p>
-                        <p className="font-semibold text-lg">{date}</p>
+                        <p className="font-semibold text-lg">{formattedDate}</p>
                     </div>
                     <div className="text-center">
+                    <p className="text-black text-lg">saroj shah</p>
                         <div className="h-1 bg-blue-700 w-48 mx-auto mb-2"></div>
                         <p className="text-gray-600">Instructor's Signature</p>
                         <p className="font-semibold text-lg text-gray-800 mt-1">{instructorName}</p>

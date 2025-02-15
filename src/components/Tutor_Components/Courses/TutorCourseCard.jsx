@@ -6,7 +6,7 @@ const TutorCourseCard = ({ course }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/tutor/courses/${course._id}/lessons`,{ state: { lessons: course.lessons } });
+    navigate(`/tutor/courses/${course._id}/lessons`,{ state: { lessons: course.lessons,quizzes:course.quizzes } });
   };
 
   const toggleReadMore = () => {

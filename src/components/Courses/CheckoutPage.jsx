@@ -9,6 +9,7 @@ import esewa from "../../assets/esewa-icon-large.png";
 const CheckoutPage = () => {
     const { state } = useLocation();
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+    const token=localStorage.getItem("token");
 
     if (!state || !state.course) {
         return <div className="p-6 text-center text-red-500">No course data available.</div>;
@@ -24,13 +25,16 @@ const CheckoutPage = () => {
         creator,
         createdDate,
         totalLessons,
+        _id
     } = state.course;
+    console.log(_id)
 
     // Khalti payment handling
-    const handleKhaltiPayment = () => {
+    const handleKhaltiPayment = async() => {
         let checkout = new KhaltiCheckout({
             // replace this key with yours
             publicKey: 'test_public_key_617c4c6fe77c441d88451ec1408a0c0e',
+            
             productIdentity: "1234567890",
             productName: "Furniture Fusion",
             productUrl: "http://localhost:3000",
@@ -50,10 +54,12 @@ const CheckoutPage = () => {
                 axios.post('https://khalti.com/api/v2/payment/verify/', data, config)
                 .then(response => {
                   console.log(response.data);
+                  
                 })
                 .catch(error => {
                   console.log(error);
                 });
+               
               },
               // onError handler is optional
               onError(error) {
@@ -77,19 +83,28 @@ const CheckoutPage = () => {
     };
     const handleEsewaPayment = () => {
         const amount = price;
-        const pidx = 'course123'; // Replace with actual payment ID or course ID
-        const merchantCode = 'your_merchant_code'; // Replace with your e-Sewa merchant code
-        const eSewaPaymentUrl = `
-https://uat.esewa.com.np/api/epay/transaction/status/?product_code=EPAYTEST&total_amount=100&transaction_uuid=123
- `;
-        window.location.href = eSewaPaymentUrl;
+       const pidx = `course_${_id}`;; // Replace with actual payment ID or course ID
+       const successUrl = encodeURIComponent('http://localhost:3000/payment-success');
+       const failureUrl = encodeURIComponent('http://localhost:3000/payment-failure');
+       const esewaPaymentUrl = `https://uat.esewa.com.np/epay/main?amt=${amount}&pid=${_id}&scd=EPAYTEST&su=${successUrl}&fu=${failureUrl}`;
+       window.location.href = esewaPaymentUrl;
     };
 
-    const handlePayment = () => {
+    const handlePayment = async() => {
         if (selectedPaymentMethod === 'e-sewa') {
             handleEsewaPayment();
         } else if (selectedPaymentMethod === 'khalti') {
-            handleKhaltiPayment();
+            handleKhaltiPayment();  
+            const responser=await axios.post('http://localhost:3000/api/payment', {
+                course_id: _id,
+                amount: price,
+                payment_method: 'Khalti',
+                status: 'successful'
+            },{
+                headers:{Authorization: `Bearer ${token}`  }
+            })
+            
+            console.log(responser);
         } else {
             alert('Please select a payment method.');
         }
